@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from math import pi, sin, cos, tan, sqrt
+from math import pi, sin, cos, tan, sqrt, log, e
 from PyQt4 import QtGui
 from pivy.coin import SoTransparencyType
 from superficie.util import Vec3, _1, partial
@@ -985,9 +985,70 @@ class ToroVerticalMorse(Page):
         self.addChild(critic4)
 
 
+class Plano2(Page):
+    u"""
+      <p>
+      Campo de vectores tangentes:<br>
+      <b>(x,y) &rarr; (-y+x(x<sup>2</sup>+y<sup>2</sup>-1),x+y(x<sup>2</sup>+y<sup>2</sup>-1))</b>
+    """
+    #<b>(x,y) &rarr; (y-x+x(x<sup>2</sup>+y<sup>2</sup>),-x-y+y(x<sup>2</sup>+y<sup>2</sup>))</b>
+    def __init__(self):
+        Page.__init__(self, u"Campo con un ciclo límite en el plano")
+
+        par_plano = lambda u, v: Vec3(u,v,0)
+
+        def plano_u(u,v):
+            return Vec3(1,0,0)
+
+        def plano_v(u,v):
+            return Vec3(0,1,0)
+
+        parab = ParametricPlot3D(par_plano, (-3,3,20),(-3,3,20))
+        parab.setTransparency(0.4)
+        parab.setTransparencyType(SoTransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_BLEND)
+        parab.setDiffuseColor(_1(68, 28, 119))
+        self.addChild(parab)
+
+        # Esta familia de curvas NO es solucion de un sistema de ecuaciones
+        # diferenciales de orden 1 (se intersectan)...
+        # pero se parece a la solucion del sistema presentado
+        def make_curva(c):
+            return lambda t: Vec3( e**(-(c*t+c))*cos(t), e**(-(c*t+c))*sin(t), 0.02 )
+
+        def make_tang(c):
+            return lambda t: Vec3( -c*e**(-(c*t+c))*cos(t) - e**(-(c*t+c))*sin(t),
+              -c*e**(-(c*t+c))*sin(t) + e**(-(c*t+c))*cos(t), 0.02 )
+
+        tangentes = []
+        ncurves = 7
+        steps = 80
+
+        for c in range(0,ncurves):
+            ## -1 < ct < 1
+            ct = c/20.0 - float(ncurves-1)/40.0
+            curva = Curve3D(make_curva(ct),(0,2*pi,steps), width=1)
+            if ct == 0:
+                curva = Curve3D(make_curva(ct),(0,2*pi,steps), width=1, color=_1(20, 240, 40))
+            curva.attachField("tangente", make_tang(ct)).setLengthFactor(.5).setWidthFactor(.25).add_tail(0.025)
+            curva.fields['tangente'].show()
+            tangentes.append(curva.fields['tangente'])
+            self.addChild(curva)
+
+
+        def animaTangentes(n):
+            for tang in tangentes:
+                tang.animateArrow(n)
+
+        a1 = Animation(animaTangentes, (6000, 0, steps-1))
+        self.setupAnimations([a1])
+
+        critic = Sphere( center=Vec3(0,0,0), radius=0.025, color=_1(240,10,20) )
+        self.addChild(critic)
+
 
 figuras = [
         Plano1,
+        Plano2,
         Esfera1,
         Esfera2,
         Esfera3,
