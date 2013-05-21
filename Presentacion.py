@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
+from sys import *
+import os
 from PyQt4 import QtGui, QtCore, uic
 from superficie.book import Chapter, Page
 
@@ -27,7 +30,14 @@ class Presentacion(QtGui.QWidget):
 
     def __init__(self, parent=None, uilayout=None, noteslayout=None):
         QtGui.QWidget.__init__(self, parent)
-        uic.loadUi("ui/presentacion.ui", self)
+
+        basedir = './ui'
+        if getattr(sys, 'frozen', None):
+            basedir = sys._MEIPASS
+        #else:
+        #    basedir = os.path.dirname(__file__)
+
+        uic.loadUi(basedir + "/presentacion.ui", self)
 
         notes = QtGui.QLabel(self.__doc__)
         notes.setWordWrap(True)

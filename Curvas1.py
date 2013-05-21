@@ -8,7 +8,7 @@ from superficie.nodes import Line, Curve3D, PointSet
 from superficie.book import Chapter, Page
 from superficie.util import Vec3, _1, partial
 from superficie.widgets import VisibleCheckBox, Slider, SpinBox
-from superficie.plots import ParametricPlot3D
+#from superficie.plots import ParametricPlot3D
 from superficie.animations import AnimationGroup
 
 

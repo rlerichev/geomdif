@@ -6,6 +6,11 @@ from PyQt4 import QtCore, QtGui, uic
 import orden
 import superficie
 from superficie.util import conecta
+from superficie.viewer.Viewer import Viewer
+# --- Added imports to 'hack' installer:
+from superficie.plots import ParametricPlot3D
+from superficie.equation import createVars
+# --- end hack
 
 
 def __import__(moduleName):
@@ -29,7 +34,15 @@ class MainWindow(QtGui.QMainWindow):
     """The main window of the program"""
     def __init__(self, *args):
         QtGui.QMainWindow.__init__(self, *args)
-        uic.loadUi("ui/mainwindow2.ui", self)
+
+        basedir = './ui'
+        if getattr(sys, 'frozen', None):
+            basedir = sys._MEIPASS
+        #else:
+        #    basedir = os.path.dirname(__file__)
+
+        uic.loadUi(basedir + "/mainwindow2.ui", self)
+
         self.parent = None
         ## ============================
         self.npasses = 0
@@ -38,7 +51,8 @@ class MainWindow(QtGui.QMainWindow):
         ## ============================
         self.initModules()
         self.setWindowTitle(u"Geometría Diferencial")
-        self.setWindowIcon(QtGui.QIcon(":/iconos/icono1.jpg"))
+        #self.setWindowIcon(QtGui.QIcon(":/iconos/icono1.jpg"))
+        self.setWindowIcon(QtGui.QIcon("icono1.jpg"))
 
     def initModules(self):
         ## self.contenidosList
@@ -55,7 +69,8 @@ class MainWindow(QtGui.QMainWindow):
         ## Esto es para evitar tener decenas de visores de OpenInventor
         ## ============================
         self.creaModulo("Presentacion", True)
-        self.viewer = self.creaModulo("superficie.viewer.Viewer")
+        #self.viewer = self.creaModulo("superficie.viewer.Viewer")
+        self.viewer = self.createViewer()
         ## ============================
 
         from superficie.book import Book
@@ -100,6 +115,25 @@ class MainWindow(QtGui.QMainWindow):
         self.controlesStack.addWidget(controles)
         self.notasStack.addWidget(notas)
         return moduloW
+
+    def createViewer(self):
+        uiLayout = QtGui.QVBoxLayout()
+        notasLayout = QtGui.QVBoxLayout()
+        #name = path.split(".")[-1]
+        #moduloW = getattr(module,name)(self.modulosStack, uiLayout, notasLayout)
+        v = Viewer(self.modulosStack, uiLayout, notasLayout)
+        self.modulosStack.addWidget(v)
+        #if addList:
+        #    self.contenidosList.addItem(moduloW.name)
+        ## ==================================
+        controles = QtGui.QWidget()
+        controles.setLayout(uiLayout)
+        notas = QtGui.QWidget()
+        notas.setLayout(notasLayout)
+        ## ==================================
+        self.controlesStack.addWidget(controles)
+        self.notasStack.addWidget(notas)
+        return v
 
     @QtCore.pyqtSignature("int")
     def on_contenidosList_currentRowChanged(self, i):
