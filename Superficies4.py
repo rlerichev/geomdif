@@ -135,9 +135,12 @@ class Mobius(Page):
             return cos(u) + v*cos(u/2)*cos(u), sin(u) + v*cos(u/2)*sin(u), v*sin(u/2)
 
         mobius = ParametricPlot3D(par, (-pi, pi, 60), (-.5, .5, 14))
-        mobius.setTransparency(0.5)
+        mobius.setTransparencyType(SoTransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_BLEND)
+        mobius.setTransparency(0.2)
 
-        def curva(t): return par(t,0)
+        def curva(t): #return par(t,0.0)
+            p = par(t,0.0)
+            return (0.98*p[0], 0.98*p[1], 0.0)
         def puntos(u): return Vec3(cos(u)*sin(u/2.0), sin(u/2.0)*sin(u),-cos(u/2.0))
 
         cm = Curve3D(curva, (-pi, pi, 200), color=_1(255, 255, 255), width=3)

@@ -59,6 +59,9 @@ class HeliceRectificada(Page):
         field_tangent = curve.attachField("tangent", tangent).show()
         field_normal = curve.attachField("normal", normal).show()
         field_binormal = curve.attachField("binormal", bi_normal).show()
+        field_tangent.setDiffuseColor( _1(255, 0, 0) )
+        field_normal.setDiffuseColor( _1(255, 255, 0) )
+        field_binormal.setDiffuseColor( _1(0, 0, 255) )
 
         #=======================================================================
         # Planes

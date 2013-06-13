@@ -171,13 +171,14 @@ class Esfera2(Page):
 
         def make_curva(c):
             return partial(par_esfera, c)
+            #return lambda t: par_esfera(t,c)*1.01
 
         def make_tang(c):
             return partial(esfera_v, c)
 
         tangentes = []
         curves = []
-        ncurves = 70
+        ncurves = 40
         for c in range(0, ncurves + 1):
             ## -1 < ct < 1
             ct = c / float(ncurves) * pi
@@ -215,14 +216,14 @@ class Esfera3(Page):
         self.addChild(parab)
 
         def make_curva(c):
-            return lambda t: par_esfera(t,c)
+            return lambda t: par_esfera(t,c)*1.01
 
         def make_tang(c):
             return lambda t: esfera_u(t,c)
 
         tangentes = []
         curves = []
-        ncurves = 70
+        ncurves = 40
         for c in range(0,ncurves+1):
             ## -1 < ct < 1
             ct = c/float(ncurves) * 2*pi
@@ -384,13 +385,13 @@ class ParaboloideHiperbolicoCortes(Page):
         for c in range(1,10):
             ## 0 < ct < 1
             ct = c/10.0
-            curva = Curve3D(make_curva(ct),(ct,1.0,50), width=1.5)
+            curva = Curve3D(make_curva(ct),(ct,1.0,50), width=1.0)
             curva.attachField("tangente", make_tang(ct)).setLengthFactor(.4).setWidthFactor(.1)
             curva.fields['tangente'].show()
             tangentes.append(curva.fields['tangente'])
             self.addChild(curva)
 
-            curva = Curve3D(make_curva_negy(ct),(ct,1.0,50), width=1.5)
+            curva = Curve3D(make_curva_negy(ct),(ct,1.0,50), width=1.0)
             curva.attachField("tangente_negy", make_tang_negy(ct)).setLengthFactor(.4).setWidthFactor(.1)
             curva.fields['tangente_negy'].show()
             tangentes.append(curva.fields['tangente_negy'])

@@ -25,7 +25,7 @@ class Elipsoide(Page):
     u"""
       El <b>plano tangente</b> a una superficie diferenciable
       <b>M<sup>2</sup></b> en uno de sus puntos <b>p</b>,
-      <b>T<sub>P</sub>M</b>, consta de los vectores tangentes en <b>p</b> a
+      <b>T<sub>P</sub>M</b>, consta de <b>TODOS</b> los vectores tangentes en <b>p</b> a
       curvas en la superficie que pasan por <b>p</b>.<br><br>
 
       En un elipsoide, el plano <b>T<sub>p</sub>M</b> deja a toda una vecindad

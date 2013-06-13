@@ -73,16 +73,16 @@ class ParaboloideEliptico(Page):
         Page.__init__(self, u"Paraboloide Elíptico<br><br>F(x,y)=(x, y, x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup>)")
 
         z = 0.5
-        par = RevolutionPlot3D(lambda r, t: r ** 2 + z, (0, 1), (0, 2 * pi))
+        par = RevolutionPlot3D(lambda r, t: r ** 2 + z, (0, 1.42), (0, 2 * pi))
 
         x, y, z2, u, v, cose, sen, t = createVars(['x', 'y', 'z', 'u', 'v', 'cos', 'sen', 't'])
 
         mesh1 = Plot3D(lambda x, y, h: h * (x ** 2 + y ** 2 + z - .01), (-1, 1), (-1, 1))
-        mesh1.addEqn(x**2+y**2 - z2**2 == 1)
+        #mesh1.addEqn(x**2+y**2 - z2**2 == 1)
         mesh1.addFunction(lambda x, y, h: h * (x ** 2 + y ** 2 + z + .01))
         mesh1.setLinesVisible(True)
         mesh1.setMeshVisible(False)
-        mesh1.setBoundingBox(zrange=(-1, 1.5))
+        mesh1.setBoundingBox(zrange=(-1, 3.0))
         par.setAmbientColor(_1(145, 61, 74))
         par.setDiffuseColor(_1(145, 61, 74))
         par.setSpecularColor(_1(145, 61, 74))
@@ -93,6 +93,7 @@ class ParaboloideEliptico(Page):
         self.addChild(par)
         self.addChild(mesh1)
         self.addChild(baseplane)
+                
 
 class ParaboloideHiperbolico(Page):
     u"""
@@ -185,13 +186,13 @@ class Superficiecuartica(Page):
         Page.__init__(self, u"Superficie cuártica<br><br>F(x,y)=(x,y,x<sup>4</sup>+2x<sup>2</sup>y<sup>2</sup>+y<sup>4</sup>)")
 
 #        cuart = Plot3D(lambda x,y: x**4 + 2*x**2*y**2 + y**4 + 1, (-1,1),(-1,1))
-        cuart = RevolutionPlot3D(lambda r, t: r ** 4 + 1, (0, 1), (0, 2 * pi))
+        cuart = RevolutionPlot3D(lambda r, t: r ** 4 + 1, (0, 1.4), (0, 2 * pi))
 #        cuart.setScaleFactor((1,1,.6))
 
-        mesh1 = Plot3D(lambda x, y, h: h * (x ** 4 + 2 * x ** 2 * y ** 2 + y ** 4 + 1), (-1, 1), (-1, 1))
+        mesh1 = Plot3D(lambda x, y, h: h * (x ** 4 + 2 * x ** 2 * y ** 2 + y ** 4 + 0.9), (-1, 1), (-1, 1))
         mesh1.setLinesVisible(True)
         mesh1.setMeshVisible(False)
-        mesh1.setBoundingBox(zrange=(-1, 2))
+        mesh1.setBoundingBox(zrange=(-1, 6))
 
 #        cuart.setAmbientColor(_1(168,211,8))
         cuart.setDiffuseColor(_1(168, 211, 8))
@@ -262,21 +263,21 @@ class EsferaCasquetes(Page):
 
         super(EsferaCasquetes,self).__init__(u"Otro atlas de la esfera")
 
-        r = .998
+        r = .98
         esf = ParametricPlot3D(lambda t, f: (r * sin(t) * cos(f), r * sin(t) * sin(f), r * cos(t)), (0, pi, 70), (0, 2 * pi, 70))
         esf.setDiffuseColor(_1(99, 136, 63))
         esf.setSpecularColor(_1(99, 136, 63))
 
         pars = [
             lambda u,v, t1: (u, v, 1.5-t1*(1.5-sqrt(1 - u**2 - v**2))),
-            lambda u,v, t2: (u, v, -1-t2*(-1+sqrt(1 - u**2 - v**2))),
+            lambda u,v, t2: (u, v, -1.5-t2*(-1.5+sqrt(1 - u**2 - v**2))),
             lambda u,v, t3: (u, 1.5-t3*(1.5-sqrt(1 - u**2 - v**2)),v),
             lambda u,v, t4: (u, -1.5-t4*(-1.5+sqrt(1 - u**2 - v**2)),v),
             lambda u,v, t5: (1.5-t5*(1.5-sqrt(1 - u**2 - v**2)),u,v),
             lambda u,v, t6, : (-1.5-t6*(-1.5+sqrt(1 - u**2 - v**2)),u,v)
         ]
 
-        d = .7
+        d = 0.707106
         colores = [(0,0,1),(0,0,1),(0,1,0),(0,1,0),(1,0,0),(1,0,0)]
         planos = [ParametricPlot3D(par, (-d, d, 40), (-d, d, 40)).setLinesVisible(True).setMeshVisible(False).setMeshDiffuseColor(colores[i]) for i,par in enumerate(pars)]
 
@@ -392,7 +393,7 @@ class Superficies1(Chapter):
 
         for f in figuras:
             self.addPage(f())
-
+        
 
 if __name__ == "__main__":
     visor = main(Superficies1)

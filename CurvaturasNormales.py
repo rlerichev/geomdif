@@ -18,7 +18,7 @@ from superficie.nodes.arrow import Arrow
 from superficie.book import chapter, page
 from superficie.book.chapter import Chapter
 from superficie.book.page import Page
-from superficie.util import Vec3, _1, partial
+from superficie.util import Vec3, _1, partial, main
 from superficie.widgets import visible_checkbox, slider
 from superficie.widgets.visible_checkbox import VisibleCheckBox
 from superficie.widgets.slider import Slider
@@ -132,6 +132,7 @@ class Elipsoide1(Page):
         self.addChild(ellipsoid)
 
         normal = Arrow((a,0,0), (a+1,0,0), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class Ellipse(object):
@@ -212,6 +213,7 @@ class Elipsoide2(Page):
         self.addChild(ellipsoid)
 
         normal = Arrow((0,0,c), (0,0,c+1), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class Ellipse(object):
@@ -320,6 +322,7 @@ class Elipsoide3(Page):
         #print px, pz, px**2/(a**2)+pz**2/(c**2), nx, nz
 
         normal = Arrow((px,0,pz), (px+nx,0,pz+nz), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         curvature_arrow = Arrow((px,0,pz), (px-0.5*nx,0,pz-0.5*nz), 0.05)
@@ -440,6 +443,7 @@ class Cilindro(Page):
         self.addChild(sep)
 
         normal = Arrow((0,0,1), (0,0,2), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class CylCurve(object):
@@ -517,6 +521,7 @@ class Hiperboloide(Page):
         self.addChild(hyperboloid)
 
         normal = Arrow((0,0,0), (0,0,1), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class Parabole(object):
@@ -596,6 +601,7 @@ class Toro1(Page):
         self.addChild(torus)
 
         normal = Arrow((r1+r2,0,0), (r1+r2+1,0,0), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class TorusCurve(object):
@@ -706,6 +712,7 @@ class Toro2(Page):
         self.addChild(torus)
 
         normal = Arrow((r1,0,r2), (r1,0,r2+1), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class TorusCurve(object):
@@ -842,6 +849,7 @@ class Toro3(Page):
         self.addChild(torus)
 
         normal = Arrow((r1-r2,0,0), (r1-r2-1,0,0), 0.03)
+        normal.setDiffuseColor(_1(240,10,200))
         self.addChild(normal)
 
         class TorusCurve(object):
@@ -942,3 +950,7 @@ class CurvaturasNormales(Chapter):
 
         for f in figuras:
             self.addPage(f())
+
+
+if __name__ == "__main__":
+    visor = main(CurvaturasNormales)
