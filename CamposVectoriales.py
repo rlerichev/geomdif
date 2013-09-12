@@ -380,6 +380,24 @@ class ParaboloideHiperbolicoCortes(Page):
             #return partial(par_tang,c)
             return lambda x : Vec3( x, c/(x**2), 0.0 ) / ( sqrt( x**2 + c**2/(x**4) ) )
 
+        def make_curvaX():
+            return lambda x : Vec3( 0.0, 1.0/x, 0.01 )
+
+        def make_curvaY():
+            return lambda x : Vec3( 1.0/x, 0.0, 0.01 )
+
+        def make_tangX():
+            return lambda x : Vec3( 0.0, -1.4/(x**2), 0.1 ) / ( sqrt( x**2 + 1.0/(x**4) ) )
+
+        def make_tangX_neg():
+            return lambda x : Vec3( 0.0, 1.4/(x**2), 0.1 ) / ( sqrt( x**2 + 1.0/(x**4) ) )
+
+        def make_tangY():
+            return lambda x : Vec3( 1.4/(x**2), 0.0, 0.1 ) / ( sqrt( x**2 + 1.0/(x**4) ) )
+
+        def make_tangY_neg():
+            return lambda x : Vec3( -1.4/(x**2), 0.0, 0.1 ) / ( sqrt( x**2 + 1.0/(x**4) ) )
+
         tangentes = []
 
         for c in range(1,10):
@@ -410,7 +428,30 @@ class ParaboloideHiperbolicoCortes(Page):
             tangentes.append(curva.fields['tangente_negy2'])
             self.addChild(curva)
 
+        curva = Curve3D(make_curvaX(),(1.0,21.0,50), width=1.0)
+        curva.attachField("tangente", make_tangX()).setLengthFactor(.4).setWidthFactor(.1)
+        curva.fields['tangente'].show()
+        tangentes.append(curva.fields['tangente'])
+        self.addChild(curva)
 
+        curva = Curve3D(make_curvaX(),(-1.0,-21.0,50), width=1.0)
+        curva.attachField("tangente", make_tangX_neg()).setLengthFactor(.4).setWidthFactor(.1)
+        curva.fields['tangente'].show()
+        tangentes.append(curva.fields['tangente'])
+        self.addChild(curva)
+
+        curva = Curve3D(make_curvaY(),(21.0,1.0,50), width=1.0)
+        curva.attachField("tangente", make_tangY()).setLengthFactor(.4).setWidthFactor(.1)
+        curva.fields['tangente'].show()
+        tangentes.append(curva.fields['tangente'])
+        self.addChild(curva)
+
+        curva = Curve3D(make_curvaY(),(-21.0,-1.0,50), width=1.0)
+        curva.attachField("tangente", make_tangY_neg()).setLengthFactor(.4).setWidthFactor(.1)
+        curva.fields['tangente'].show()
+        tangentes.append(curva.fields['tangente'])
+        self.addChild(curva)
+        
         def animaTangentes(n):
             for tang in tangentes:
                 tang.animateArrow(n)
@@ -418,8 +459,8 @@ class ParaboloideHiperbolicoCortes(Page):
         a1 = Animation(animaTangentes, (5000, 0, 49))
         self.setupAnimations([a1])
 
-        self.addChild(Line([(-1, 0, 0.01), (1, 0, 0.01)], color=(1, 1, 1)).setWidth(1.5))
-        self.addChild(Line([(0, -1, 0.01), (0, 1, 0.01)], color=(1, 1, 1)).setWidth(1.5))
+        #self.addChild(Line([(-1, 0, 0.01), (1, 0, 0.01)], color=(1, 1, 1)).setWidth(1.5))
+        #self.addChild(Line([(0, -1, 0.01), (0, 1, 0.01)], color=(1, 1, 1)).setWidth(1.5))
 
 
 class ToroMeridianos(Page):
@@ -899,7 +940,7 @@ class ToroVerticalMorse(Page):
 
             vectorial_fields_curves.append( arrow )
 
-        # paralelos hasta arriba
+        # paralelos hasta "arriba"
         points_curve1 = []
         q = Vec3( 0.25, 0.0, a+b )
         for n in range(0,100):
@@ -947,6 +988,55 @@ class ToroVerticalMorse(Page):
         vectorial_fields_curves.append( arrow )
 
 
+        # paralelos hasta "abajo"
+        points_curve3 = []
+        q = Vec3( 0.25, 0.0, -a+b )
+        for n in range(0,100):
+            p = projAtTorus(q)
+            v = valMorseFieldAt(p)
+            if v.length() < 0.01:
+                break
+            points_curve3.append(p)
+            q = nextPoint(p, 0.05)
+
+        curve3 = Line(points_curve3, width=2.5)
+        curves.append( curve3 )
+
+        cvf = CurveVectorField(curve3)
+        vectorial_fields_curves_bk.append(cvf)
+
+        arrow = AnimatedArrow( cvf.basePoint, cvf.endPoint )
+        arrow.setDiffuseColor(_1(220,40,20))
+        arrow.setWidthFactor( 0.25 )
+        arrow.add_tail( 0.025 )
+
+        vectorial_fields_curves.append( arrow )
+
+        points_curve4 = []
+        q = Vec3( -0.25, 0.0, -a+b )
+        for n in range(0,100):
+            p = projAtTorus(q)
+            v = valMorseFieldAt(p)
+            if v.length() < 0.01:
+                break
+            points_curve4.append(p)
+            q = nextPoint(p, 0.05)
+
+        curve4 = Line(points_curve4, width=2.5)
+        curves.append( curve4 )
+
+        cvf = CurveVectorField(curve4)
+        vectorial_fields_curves_bk.append(cvf)
+
+        arrow = AnimatedArrow( cvf.basePoint, cvf.endPoint )
+        arrow.setDiffuseColor(_1(220,40,20))
+        arrow.setWidthFactor( 0.25 )
+        arrow.add_tail( 0.025 )
+
+        vectorial_fields_curves.append( arrow )
+        
+        
+        # Juntando todos los campos y curvas...
         self.addChildren( curves )
         self.addChildren( vectorial_fields_curves )
 
@@ -988,6 +1078,78 @@ class ToroVerticalMorse(Page):
 
 class Plano2(Page):
     u"""
+      <p>
+      La interacción muestra un campo vectorial en el plano, una de cuyas trayectorias integrales
+      es una curva cerrada llamada <b>ciclo límite</b> (en verde) y otra que se
+      reduce a un punto, donde el campo anula, es decir, es una <b>singularidad del
+      campo</b> (el punto rojo).
+			<p>
+			En este caso el ciclo es llamado <b>atractor</b>, pues las curvas integrales
+			se le acercan asintóticamente cuando el tiempo tiende al infinito.
+      <p>
+      Campo de vectores tangentes:<br>
+      <b>(x,y) &rarr; (-y+x(x<sup>2</sup>+y<sup>2</sup>-1), x+y(x<sup>2</sup>+y<sup>2</sup>-1))</b>
+    """
+    #<b>(x,y) &rarr; (y-x-x(x<sup>2</sup>+y<sup>2</sup>),-x-y-y(x<sup>2</sup>+y<sup>2</sup>))</b>
+    def __init__(self):
+        Page.__init__(self, u"Campo con un ciclo límite en el plano")
+
+        par_plano = lambda u, v: Vec3(u,v,0)
+
+        def plano_u(u,v):
+            return Vec3(1,0,0)
+
+        def plano_v(u,v):
+            return Vec3(0,1,0)
+
+        parab = ParametricPlot3D(par_plano, (-3,3,20),(-3,3,20))
+        parab.setTransparency(0.4)
+        parab.setTransparencyType(SoTransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_BLEND)
+        parab.setDiffuseColor(_1(68, 28, 119))
+        self.addChild(parab)
+
+        # Esta familia de curvas NO es solucion de un sistema de ecuaciones
+        # diferenciales de orden 1 (se intersectan)...
+        # pero se parece a la solucion del sistema presentado
+        def make_curva(c):
+            return lambda t: Vec3( e**(c*t-c)*cos(t), -e**(c*t-c)*sin(t), 0.02 )
+
+        def make_tang(c):
+            return lambda t: Vec3( c*e**(c*t-c)*cos(t) - e**(c*t-c)*sin(t),
+              -c*e**(c*t-c)*sin(t) - e**(c*t-c)*cos(t), 0.02 )
+
+        tangentes = []
+        ncurves = 7
+        steps = 80
+
+        for c in range(0,ncurves):
+            ## -1 < ct < 1
+            ct = c/20.0 - float(ncurves-1)/40.0
+            curva = Curve3D(make_curva(ct),(-2*pi,0,steps), width=1)
+            if ct == 0:
+                curva = Curve3D(make_curva(ct),(0,2*pi,steps), width=1, color=_1(20, 240, 40))
+            curva.attachField("tangente", make_tang(ct)).setLengthFactor(.5).setWidthFactor(.25).add_tail(0.025)
+            curva.fields['tangente'].show()
+            tangentes.append(curva.fields['tangente'])
+            self.addChild(curva)
+
+
+        def animaTangentes(n):
+            for tang in tangentes:
+                tang.animateArrow(n)
+
+        a1 = Animation(animaTangentes, (6000, 0, steps-1))
+        self.setupAnimations([a1])
+
+        critic = Sphere( center=Vec3(0,0,0), radius=0.025, color=_1(240,10,20) )
+        self.addChild(critic)
+
+class Plano3(Page):
+    u"""
+			<p>
+      Aquí se muestra un campo en el plano con ciclo límite como el anterior,
+			sólo que en este caso el ciclo es llamado <b>repulsor</b>, pues las curvas integrales
+			se alejan de este cuando el tiempo tiende al infinito.
       <p>
       Campo de vectores tangentes:<br>
       <b>(x,y) &rarr; (-y+x(x<sup>2</sup>+y<sup>2</sup>-1),x+y(x<sup>2</sup>+y<sup>2</sup>-1))</b>
@@ -1049,7 +1211,8 @@ class Plano2(Page):
 
 figuras = [
         Plano1,
-        Plano2,
+        Plano2, # Ciclo límite atractor
+        Plano3, # Ciclo límite repulsor
         Esfera1,
         Esfera2,
         Esfera3,

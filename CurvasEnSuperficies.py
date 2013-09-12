@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from math import *
+from fractions import gcd
 
 from PyQt4 import QtGui
 from pivy.coin import *
@@ -8,6 +9,7 @@ from superficie.nodes import Line, Curve3D, PointSet, SimpleSphere
 from superficie.book import Chapter, Page
 from superficie.util import Vec3, _1, partial
 from superficie.widgets import VisibleCheckBox, Slider, SpinBox
+from superficie.widgets.checkbox import CheckBox
 from superficie.plots import ParametricPlot3D
 from superficie.viewer.Viewer import Viewer
 from superficie.animations import AnimationGroup
@@ -203,7 +205,7 @@ class Toro(Page):
     def __init__(self):
         super(Toro,self).__init__(u"Curvas tóricas")
         tmin, tmax, npuntos = (0, 2 * pi, 3000)
-
+        
         a = 1
         b = 0.5
         c = .505
@@ -221,8 +223,16 @@ class Toro(Page):
         toro.setTransparency(.4)
 
         curva = Curve3D(curvaToro, (tmin, tmax, npuntos), color=_1(146, 33, 86), width=3, nvertices=1)
-
-
+        
+        curves = []
+        curves.append( curva )
+        # Super hack muy malo!!! 
+        ncurves = 17
+        for i in range(1,ncurves):
+            curves.append( Curve3D(curvaToro, (tmin, tmax, npuntos),
+              color=_1((146-i*84)%240, (32+i*128)%250, (86+i*62)%220), width=3, nvertices=1) )
+            curves[i].hide()
+        
         def recalculaCurva(**kargs):
             """a: vueltas horizontales, b: vueltas verticales"""
             keys = kargs.keys()
@@ -232,22 +242,68 @@ class Toro(Page):
                 recalculaCurva.b = kargs["b"]
 
             def curvaPlana(t):
-                return (recalculaCurva.a * t, recalculaCurva.b * t)
+                return (recalculaCurva.a * t + recalculaCurva.atrans,
+                  recalculaCurva.b * t + recalculaCurva.btrans )
             def curvaToro(t):
                 return toroParam2(*curvaPlana(t))
-
+            
+            recalculaCurva.atrans = 0
+            recalculaCurva.btrans = 0
             curva.updatePoints(curvaToro)
+            
+            for i in range(1,ncurves):
+                curves[i].hide()
+            
+            n = gcd( recalculaCurva.a, recalculaCurva.b )
+            if n > 1 and recalculaCurva.a != 0 and recalculaCurva.b != 0:
+                self.chbox.setText( u"Ocultar curvas adicionales."
+                 + u"\nNúmero total de curvas disjuntas:  " + str(n) ) 
+                self.chbox.setEnabled(True)
+                #print n
+                for i in range(1,n):
+
+                    #if recalculaCurva.a >= recalculaCurva.b:  
+                    recalculaCurva.atrans = i*2*pi/recalculaCurva.b
+                    #else:
+                    #recalculaCurva.btrans = i*2*pi/recalculaCurva.b
+                    curves[i].updatePoints(curvaToro)
+                    if not self.chbox.isChecked():
+                        curves[i].show()
+            else:
+                self.chbox.setText("Ocultar curvas adicionales")
+                self.chbox.setEnabled(False)
 
         recalculaCurva.a = 1
         recalculaCurva.b = 1
 
         sp1 = SpinBox("a", (0, 20, 1), lambda x: recalculaCurva(a=x), parent=self)
         sp2 = SpinBox("b", (0, 20, 1), lambda x: recalculaCurva(b=x), parent=self)
+        
+        def showExtraCurves():
+            #recalculaCurva(recalculaCurva.a,recalculaCurva.b)
+            n = gcd( recalculaCurva.a, recalculaCurva.b )
+            if n > 1 and recalculaCurva.a != 0 and recalculaCurva.b != 0:
+                for i in range(1,n):
+                    curves[i].show()
+        def hideExtraCurves():
+            for i in range(1,ncurves):
+                curves[i].hide()
+                    
+        self.chbox = CheckBox( hideExtraCurves, showExtraCurves,
+          "Ocultar curvas adicionales", state=False )
+        self.chbox.setEnabled(False)
+        self.addWidget( self.chbox )
 
-        self.addChild(curva)
         self.addChild(toro)
+        #self.addChild(curva)
+        self.addChildren( curves )
         curva.animation.setDuration(5000)
-        self.setupAnimations([curva])
+        #self.setupAnimations([curva])
+        self.setupAnimations( curves )
+        
+        #recalculaCurva(1,1)
+        curva.updatePoints(curvaToro)
+        
 
 class CurvasEnSuperficies(Chapter):
     def __init__(self):
@@ -265,7 +321,7 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     visor = Viewer()
-    visor.book.addChapter(curvas_superficies())
+    visor.book.addChapter(CurvasEnSuperficies())
     visor.whichChapter = 0
     visor.chapter.whichPage = 0
     visor.resize(400, 400)
